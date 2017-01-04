@@ -1,5 +1,9 @@
-Do you know javascript Promise? CompletableFuture is then very easy for you to understand.
+Do you know javascript Promise? CompletableFuture is like the Promise in java
 
+I will compare how one does Promise like programming in javascript and java.
+
+
+##State
 A promise  has two  possible states:
  
 + complete successfully 
@@ -7,7 +11,7 @@ A promise  has two  possible states:
 
 
 ##Create and Complete Promise
-
+**javascript**
 ```javascript
 
 	Promise p=new Promise(function(resolve, reject){
@@ -16,7 +20,7 @@ A promise  has two  possible states:
 		reject("error");
 	})
 ```
-
+**java**
 ```java
 
 	CompletableFuture<Integer> future1 = new CompletableFuture<>();
@@ -30,7 +34,7 @@ A promise  has two  possible states:
 
 
 ##Handle successful state
-
+**javascript**
 ```javascript 
 	
 	p.then(intValue=>intValue*2)
@@ -38,6 +42,8 @@ A promise  has two  possible states:
 
 We have three approaches to go to next stage in java.
 + convert the return value to another value. This is the thenApply function
+
+**java**
 ```java
 
 	future1.thenApply( (intValue)->intValue*2);
@@ -47,7 +53,7 @@ We have three approaches to go to next stage in java.
 
 	future1.thenAccept((intValue)->System.out.println(intValue));
 ``` 
-+ Don't touch the value, and return nothing. This is the thenRun function.
++ Don't need the value, and return nothing. This is the thenRun function.
 ```java
 
 	future1.thenRun(()->System.out.println(intValue));
@@ -56,6 +62,7 @@ We have three approaches to go to next stage in java.
 Javascript doesn't differentiate these three types. If there is no value is returned, it is treated as "undefined"
 
 ##Handle Exception.
+**javascript**
 ```javascript
 
 	p.then(intValue=>intValue*2, error=>console.log("error"));
@@ -63,6 +70,7 @@ Javascript doesn't differentiate these three types. If there is no value is retu
 	
 	p.catch(error=>console.log("error"));
 ```
+**java**
 ```java
 
 	future1.handle((intValue, exception)->{
@@ -91,8 +99,9 @@ Javascript doesn't differentiate these three types. If there is no value is retu
 This is a no-brainer for javascript since javascript just has one thread.
 
 In java, we can have many options. First, there is a thread finishing current stage. so what thread do we use for next dependent stage?
-+ thenApply: after this stage finishes, executes next stage immediately in **DEFAULT** thread. what is DEFAULT thread? it is CONTEXT thread: same thread finishing current task. **immediately** here doesn't gunruantte synchronously execution.
++ thenApply: after this stage finishes, executes next stage immediately in **DEFAULT** thread. what is DEFAULT thread? it is CONTEXT thread: same thread finishing current task. **immediately** here doesn't guarantee synchronously execution.
 
+**java**
 ```java
 
 	future1.thenApply(intValue->inteValue*2);
@@ -110,14 +119,15 @@ In java, we can have many options. First, there is a thread finishing current st
 ```java
 
 	future1.thenApplyAsync(intValue->inteValue*2, executor);
-``
+```
 
 ##Chain
+**javascript**
 ```javascript
 
 	p.then(intValue=>intValue*2).then(intValue=>intValue/2);
 ```
-
+**java**
 ```java
 
 	future1.thenApply(intValue->intValue*2).thenApply(intValue=>intValue/2);
@@ -125,6 +135,7 @@ In java, we can have many options. First, there is a thread finishing current st
 
 
 ##Nested Chain
+**javascript**
 ```javascript
 
 	p.then( intValue=> {
@@ -135,7 +146,7 @@ In java, we can have many options. First, there is a thread finishing current st
 		});
 	});
 ```
-
+**java**
 ```java
 
 	future1.thenCompose(intValue=>{
@@ -149,13 +160,14 @@ In java, we can have many options. First, there is a thread finishing current st
 ```
 
 ##Compose and synchronization.
+**javascript**
 ```javascript
 
 	Promise.all(p1, p2).then(values=>console.log(values));
 	
 	Promise.race(p1, p2).then(intValue=>intValue*2);
 ```
-
+**java**
 ```java
 
 	CompletableFuture<Integer>[] futures= new CompletableFuture[]{future1, future2, future3};
@@ -173,7 +185,7 @@ In java, we can have many options. First, there is a thread finishing current st
 	
 	CompletableFuture.anyOf(futures).thenApply(intValue->intValue*2);
 ```
-if there is only two Promise, java CompletableFuture also has instance shortCut methods to perform combine.
+if there are only two Promises, CompletableFuture also has instance short cut methods to perform combine.
 
 ##Powerful synchronization.
 CompletableFuture is another mechanism to execute concurrent tasks.
@@ -181,7 +193,7 @@ CompletableFuture is another mechanism to execute concurrent tasks.
 + attaches two thenApply to a CompletableFuture is like a fork mechanism,
 + allOf, anyOf is like a latch. 
 
-We can have an ad hoc execution task graph.
+We can form an ad hoc execution task graph with completableFuture
 
 
 
